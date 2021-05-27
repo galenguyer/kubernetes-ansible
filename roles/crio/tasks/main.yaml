@@ -1,0 +1,21 @@
+---
+- name: Enable kernel modules
+  template:
+   src: module.conf.j2
+   dest: "/etc/modules-load.d/{{ item.name }}.conf"
+  with_items:
+  - { name: 'br_netfilter', kernel_module: 'br_netfilter' }
+  - { name: 'overlay', kernel_module: 'overlay' }
+  register: modprobe
+
+- name: modprobe overlay
+  community.general.modprobe:
+    name: overlay
+    state: present
+  when: modprobe.changed
+
+- name: modprobe br_netfilter
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+  when: modprobe.changed
