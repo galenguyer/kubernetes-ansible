@@ -31,3 +31,51 @@
     name: net.ipv4.ip_forward
     value: '1'
     state: present
+
+- name: add backports package repo
+  apt_repository:
+    repo: deb http://deb.debian.org/debian buster-backports main
+    state: present
+
+- name: install backports libseccomp2
+  apt:
+    name: libseccomp2
+    default_release: buster-backports
+    state: latest
+
+- name: ensure gnupg2 is installed
+  apt:
+    name: gnupg2
+    state: present
+
+- name: add libcontainers key to apt
+  apt_key:
+    url: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/Debian_10/Release.key 
+    state: present
+
+- name: add cri-o key to apt
+  apt_key:
+    url: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:1.21/Debian_10/Release.key
+    state: present
+
+- name: add libcontainers repo
+  apt_repository:
+    repo: deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/Debian_10/ /
+    state: present
+
+- name: add cri-o repo
+  apt_repository:
+    repo: deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.21/Debian_10/ /
+    state: present
+
+- name: install required packages
+  apt:
+    pkg:
+      - cri-o
+      - cri-o-runc
+
+- name: start crio service
+  systemd:
+    name: crio
+    state: started
+    daemon_reload: yes
