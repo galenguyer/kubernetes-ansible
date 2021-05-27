@@ -1,0 +1,65 @@
+---
+- name: Enable kernel modules
+  template:
+   src: module.conf.j2
+   dest: "/etc/modules-load.d/{{ item.name }}.conf"
+  with_items:
+  - { name: 'br_netfilter', kernel_module: 'br_netfilter' }
+  register: modprobe
+
+- name: modprobe br_netfilter
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+  when: modprobe.changed
+
+- name: pass bridged IPv4 traffic to iptables' chains
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: '1'
+    state: present
+
+- name: install dependencies
+  apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+
+# the following is currently broken, as ansible fails trying to import a binary gpg key
+#- name: add google signing key to apt
+#  apt_key:
+#    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+#    state: present
+- name: add google signing key to apt
+  ansible.builtin.shell: 
+    cmd: curl -sSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+
+- name: add kubernetes repo
+  apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+
+- name: apt-get update
+  apt:
+    update_cache: yes
+
+- name: install kubernetes 1.21.1
+  apt:
+    pkg:
+      - "kubelet=1.21.1-00"
+      - "kubeadm=1.21.1-00"
+      - "kubectl=1.21.1-00"
+    state: present
+    force: yes
+  register: install
+
+- name: hold kubernetes version
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  when: install.changed
+  loop:
+  - kubelet
+  - kubeadm
+  - kubectl
