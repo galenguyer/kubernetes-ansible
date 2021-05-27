@@ -26,12 +26,20 @@
   register: cmdline
   tags: cmdline
 
-- name: disable swap in fstab since kubernetes can't work with swap enabled
+- name: disable swap in fstab
   replace:
     path: /etc/fstab
     regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
     replace: '# \1'
   register: swap
+
+- name: update all packages
+  apt:
+    update_cache: 'yes'
+    autoclean: 'yes'
+    autoremove: 'yes'
+    cache_valid_time: 21600
+    upgrade: 'yes'
 
 # reboot if needed
 - name: reboot
