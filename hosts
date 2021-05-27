@@ -1,0 +1,9 @@
+# you will want to update entries under nodes to follow a format similar to the following:
+# k8s-01  ansible_host=ip_or_dns_address
+[nodes]
+k8s-01
+k8s-02
+k8s-03
+
+[masters]
+k8s-01
