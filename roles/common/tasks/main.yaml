@@ -16,8 +16,18 @@
   register: hostname
   tags: hostname
 
+- name: enable cgroup options at boot
+  copy:
+    src: cmdline.txt
+    dest: /boot/cmdline.txt
+    owner: root
+    group: root
+    mode: 0755
+  register: cmdline
+  tags: cmdline
+
 # reboot if needed
 - name: reboot
   reboot:
     reboot_timeout: 120
-  when: hostname.changed
+  when: (hostname is defined and hostname.changed) or (cmdline is defined and cmdline.changed)
