@@ -19,3 +19,15 @@
     name: br_netfilter
     state: present
   when: modprobe.changed
+
+- name: pass bridged IPv4 traffic to iptables' chains
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: '1'
+    state: present
+
+- name: forward ipv4 packets with iptables
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
