@@ -1,0 +1,9 @@
+---
+# set the node hostname to match the inventory hostname, as long as the inventory
+# host is not an IP address
+- name: Ensure hostname matches inventory hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+  when: not inventory_hostname is match('(\d{1,3}\.){3}\d{1,3}')
+  register: hostname
+  tags: hostname
