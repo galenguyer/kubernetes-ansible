@@ -37,3 +37,14 @@
     state: restarted
     daemon_reload: yes
     enabled: yes
+
+- name: copy haproxy-ingress configuration
+  copy:
+    src: haproxy-ingress.yaml
+    dest: /tmp/haproxy-ingress.yaml
+    owner: root
+    group: root
+    mode: 0755
+
+- name: install haproxy-ingress
+  shell: kubectl apply -f /tmp/haproxy-ingress.yaml
