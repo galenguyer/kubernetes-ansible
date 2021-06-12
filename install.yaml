@@ -11,3 +11,7 @@
 - hosts: all:!masters
   roles:
     - worker
+
+- hosts: masters
+  roles:
+    - haproxy
