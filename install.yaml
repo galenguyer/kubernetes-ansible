@@ -3,3 +3,7 @@
     - common
     - crio
     - kubeadm
+
+- hosts: masters
+  roles:
+    - master

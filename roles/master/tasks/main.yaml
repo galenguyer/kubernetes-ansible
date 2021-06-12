@@ -1,0 +1,43 @@
+---
+- name: reset kubeadm
+  shell: kubeadm reset -f
+  register: kubeadm_reset
+
+- name: kubeadm init
+  shell: kubeadm init --apiserver-advertise-address={{ ansible_default_ipv4.address }} --token={{ token }} --kubernetes-version=1.21.1 --pod-network-cidr=10.244.0.0/16
+  register: kubeadm_init
+  when: kubeadm_reset is succeeded
+
+- name: create Kubernetes config directory
+  file:
+    path: /root/.kube/
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+  when: kubeadm_init is succeeded
+
+- name: copy admin.conf to config directory
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /root/.kube/config
+    owner: root
+    group: root
+    mode: 0600
+    remote_src: yes
+    backup: yes
+  when: kubeadm_init is succeeded
+
+- name: join cluster
+  shell: kubeadm join --ignore-preflight-errors=all --token {{ token }} {{ hostvars[groups['masters'][0]]['ansible_default_ipv4']['address'] }}:6443 --discovery-token-unsafe-skip-ca-verification
+  when: kubeadm_init is succeeded
+
+- name: install flannel
+  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+- name: restart kubelet
+  systemd:
+    name: kubelet
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
