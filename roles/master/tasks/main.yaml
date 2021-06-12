@@ -28,9 +28,9 @@
     backup: yes
   when: kubeadm_init is succeeded
 
-- name: join cluster
-  shell: kubeadm join --ignore-preflight-errors=all --token {{ token }} {{ hostvars[groups['masters'][0]]['ansible_default_ipv4']['address'] }}:6443 --discovery-token-unsafe-skip-ca-verification
-  when: kubeadm_init is succeeded
+#- name: join cluster
+#  shell: kubeadm join --ignore-preflight-errors=all --token {{ token }} {{ hostvars[groups['masters'][0]]['ansible_default_ipv4']['address'] }}:6443 --discovery-token-unsafe-skip-ca-verification
+#  when: kubeadm_init is succeeded
 
 - name: install flannel
   shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml

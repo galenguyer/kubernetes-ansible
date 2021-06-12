@@ -7,3 +7,7 @@
 - hosts: masters
   roles:
     - master
+
+- hosts: all:!masters
+  roles:
+    - worker

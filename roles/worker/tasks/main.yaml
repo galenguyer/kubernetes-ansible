@@ -1,0 +1,15 @@
+---
+- name: reset kubeadm
+  shell: kubeadm reset -f
+  register: kubeadm_reset
+
+- name: join cluster
+  shell: kubeadm join --ignore-preflight-errors=all --token {{ token }} {{ hostvars[groups['masters'][0]]['ansible_default_ipv4']['address'] }}:6443 --discovery-token-unsafe-skip-ca-verification
+  when: kubeadm_reset is succeeded
+
+- name: restart kubelet
+  systemd:
+    name: kubelet
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
