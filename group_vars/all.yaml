@@ -1,2 +1,2 @@
 token: 0ddij3.ta8c51aodv8lfjoq
-
+init_opts: --apiserver-cert-extra-sans="$(curl -sSL ifconfig.me)"
