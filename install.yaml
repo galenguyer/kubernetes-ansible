@@ -12,6 +12,6 @@
   roles:
     - worker
 
-- hosts: masters
+- hosts: all
   roles:
     - haproxy

@@ -45,6 +45,16 @@
   apt:
     pkg:
       - rsync
+      # for longhorn
+      - open-iscsi
+      - nfs-common
+
+- name: enable iscsid service
+  systemd:
+    name: iscsid
+    state: started
+    daemon_reload: yes
+    enabled: true
 
 # reboot if needed
 - name: reboot
